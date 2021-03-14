@@ -55,8 +55,8 @@ class Node:
 def heapify(lista, n, i):
     # ### o primeiro elemento da raiz e considerado o maior
     maior = i
-    esq = 2 * i + 1     # esquerda
-    dir = 2 * i + 2     # direita
+    esq = 2*i+1     # esquerda
+    dir = 2*i+2     # direita
  
     # ### max-heap: verifica se o filho é maior que o pai
     if esq < n and lista[maior] < lista[esq]:
@@ -70,15 +70,16 @@ def heapify(lista, n, i):
         lista[i], lista[maior] = lista[maior], lista[i] 
  
         # ### faz esse processo recursivamente
-        heapify(lista, n, maior)
- 
+        heapify(lista, n, maior) 
  
 def heapSort(lista):
     """ Ordena os elemento de uma uma maxheap"""
     n = len(lista)
  
     # ### constroi um maxheap.
-    for i in range( (n//2 - 1), -1, -1):
+    inicio = (n//2 - 1)
+    
+    for i in range(inicio , -1, -1):
         heapify(lista, n, i)
  
     # ### extrai os elementos da heap

@@ -49,8 +49,9 @@ class ListaCircularDupEncadeada:
     def busca(self, chave, N):
         # ### iniciar a busca a partir de 0 e N/2 ao mesmo tempo
         node_meio = self.retornar_node(N//2)
-        
-        for i in range((N//2)+1):
+        parada = (N//2)+1
+
+        for i in range(parada):
             parte1 = self.primeiro
             parte2 = node_meio
 
