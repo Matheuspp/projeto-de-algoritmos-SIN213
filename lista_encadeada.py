@@ -35,7 +35,7 @@ if __name__ in "__main__":
     lista = ListaEncadeada()
     print(lista)
     # popular lista
-    lista = inserir(lista, 2)
+    inserir(lista, 2)
     print(lista)
 
 
