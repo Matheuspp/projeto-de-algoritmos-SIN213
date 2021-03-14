@@ -17,9 +17,9 @@ class ListaEncadeada:
         self.head = None
 
     def __repr__(self):
-        return "[" + str(self.cabeca) + "]"
+        return "[" + str(self.head) + "]"
 
-def insert(lista, dado):
+def inserir(lista, dado):
     # ### cria um novo no para inserir o dado
     novo = Node(dado)
 
@@ -30,10 +30,15 @@ def insert(lista, dado):
     lista.head = novo
 
 
-def main():
-
 
 if __name__ in "__main__":
-    main()
+    lista = ListaEncadeada()
+    print(lista)
+    # popular lista
+    lista = inserir(lista, 2)
+    print(lista)
+
+
+    
 
 
