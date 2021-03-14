@@ -1,8 +1,56 @@
 import template
 
+# ###========================================
+# ### Arvore binária de busca 
+# ###========================================
+
 class Node:
-    def __init__(sefl, dado):
+    def __init__(self, dado):
+
+        self.ant = None
+        self.prox = None
         self.dado = dado
+
+    def inserir(self, dado):
+
+        if self.dado:
+            if dado < self.dado:
+                if self.ant is None:
+                    self.ant = Node(dado)
+                else:
+                    self.ant.inserir(dado)
+            elif dado > self.dado:
+                if self.prox is None:
+                    self.prox = Node(dado)
+                else:
+                    self.prox.inserir(dado)
+        else:
+            self.dado = dado
+
+# ### busca de uma chave na arvore recursivamente
+
+    def busca(self, chave):
+        if chave < self.dado:
+            if self.ant is None:
+                return f"{chave} não encontrado"
+            return self.ant.busca(chave)
+        elif chave > self.dado:
+            if self.prox is None:
+                return f"{chave} não encontrado"
+            return self.prox.busca(chave)
+        else:
+            return f"{self.dado} encontrado"
+
+    def imprimir(self):
+        if self.ant:
+            self.ant.imprimir()
+        print(self.dado),
+        if self.prox:
+            self.prox.imprimir()
+
+# ###========================================
+# ### heapsort
+# ###========================================
 
 def heapify(lista, n, i):
     # ### o primeiro elemento da raiz e considerado o maior
@@ -43,8 +91,16 @@ if __name__ in "__main__":
     # ### carregando dados do template
     lista = template.arranjo
 
+    # ### heapsort
     heapSort(lista)
     n = len(lista)
-    print("Sorted listaay is")
     for i in range(n):
-        print("%d" % lista[i])
+        pass
+        #print(f"{lista[i]}")
+    
+    # ### arvore binária
+    raiz = Node(lista[0])
+    for item in lista[1:]:
+        raiz.inserir(item)
+
+    raiz.imprimir()
