@@ -8,6 +8,9 @@ def pesquisa_linear(arranjo, item):
        Uma impletação simples em python de uma busca sequencial
        complexidade: O(n)
     '''
+    if len(arranjo) == 0:
+        return None
+        
     idx = 0
     for i in arranjo:
         if item == i:
