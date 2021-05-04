@@ -1,86 +1,79 @@
 import time
-import sys
-sys.setrecursionlimit(10000000)
 
-class Sort:
-    def __init__(self, entry):
-        self.entry = entry
+def selection_sort(entry):
+    for i in range(len(entry)):
+        min_idx = i
+        for j in range(i+1, len(entry)):
+            if entry[min_idx] > entry[j]:
+                min_idx = j
+                
+        entry[i], entry[min_idx] = entry[min_idx], entry[i]
 
-    def selection(self):
-        for i in range(len(self.entry)):
-            min_idx = i
-            for j in range(i+1, len(self.entry)):
-                if self.entry[min_idx] > self.entry[j]:
-                    min_idx = j
-                    
-            self.entry[i], self.entry[min_idx] = self.entry[min_idx], self.entry[i]
+    return entry
 
-        return self.entry
+def insertion_sort(entry):
+    for i in range(1, len(entry)):
+        key = entry[i]
+        j = i-1
+        while j >=0 and key < entry[j] :
+            entry[j+1] = entry[j]
+            j -= 1
+            entry[j+1] = key
 
-    def insertion(self):
-        for i in range(1, len(self.entry)):
-            key = self.entry[i]
-            j = i-1
-            while j >=0 and key < self.entry[j] :
-                self.entry[j+1] = self.entry[j]
-                j -= 1
-                self.entry[j+1] = key
+    return entry
 
-        return self.entry
+def shell_sort(entry):
+    n = len(entry)
+    gap = int(n/2)
+    print(gap)
+    print(n)
 
-    def shell(self):
-        n = len(self.entry)
-        gap = int(n/2)
-        print(gap)
-        print(n)
-  
-        while gap > 0:  
-            for i in range(gap,n):
-                temp = self.entry[i]
-                j = i
-                while  j >= gap and self.entry[j-gap] >temp:
-                    self.entry[j] = self.entry[j-gap]
-                    j -= gap
-                self.entry[j] = temp
-            gap /= 2
-            gap = int(gap)
+    while gap > 0:  
+        for i in range(gap,n):
+            temp = entry[i]
+            j = i
+            while  j >= gap and entry[j-gap] >temp:
+                entry[j] = entry[j-gap]
+                j -= gap
+            entry[j] = temp
+        gap /= 2
+        gap = int(gap)
 
-        return self.entry
+    return entry
 
-    def merge(self, entry):
-
-        mid = len(entry)//2 
-        L = entry[:mid]
-        R = entry[mid:]
-
-        # ### left
-        self.merge(L)
-
-        # ### right
-        self.merge(R)
-
-        i = j = k = 0
-
-        while i < len(L) and j < len(R):
-            if L[i] < R[j]:
-                entry[k] = L[i]
-                i += 1
-            else:
-                entry[k] = R[j]
-                j += 1
-            k += 1
-
-        while i < len(L):
-            entry[k] = L[i]
-            i += 1
-            k += 1
-
-        while j < len(R):
-            entry[k] = R[j]
+def merge(entry):
+    for k in range(left, right + 1):
+        aux[k] = entry[k]
+    i = left
+    j = middle + 1
+    for k in range(left, right + 1):
+        if i > middle:
+            entry[k] = aux[j]
             j += 1
-            k += 1
+        elif j > right:
+            entry[k] = aux[i]
+            i += 1
+        elif aux[j] < aux[i]:
+            entry[k] = aux[j]
+            j += 1
+        else:
+            A[k] = aux[i]
+            i += 1
 
-        return entry
+def merge_sort(entry, aux, left, right):
+    if right <= left:
+        return
+    middle = (left + right) // 2
+
+    # Ordena a primeira metade do arranjo.
+    merge_sort(entry, aux, left, right)(A, aux, left, middle)
+
+    # Ordena a segunda metade do arranjo.
+    merge_sort(entry, aux, left, right)(A, aux, middle + 1, right)
+
+    # Combina as duas metades ordenadas anteriormente.
+    merge(A, aux, left, middle, right)
+
 
 def read_data(path, entry_size=10, mode='random'):
 
@@ -96,45 +89,11 @@ def read_data(path, entry_size=10, mode='random'):
     else:
         return data
 
-def merge(entry):
-
-    mid = len(entry)//2 
-    L = entry[:mid]
-    R = entry[mid:]
-
-    # ### left
-    merge(L)
-
-    # ### right
-    merge(R)
-
-    i = j = k = 0
-
-    while i < len(L) and j < len(R):
-        if L[i] < R[j]:
-            entry[k] = L[i]
-            i += 1
-        else:
-            entry[k] = R[j]
-            j += 1
-        k += 1
-
-    while i < len(L):
-        entry[k] = L[i]
-        i += 1
-        k += 1
-
-    while j < len(R):
-        entry[k] = R[j]
-        j += 1
-        k += 1
-
-    return entry
 
 if __name__ in "__main__":
     # ### reading entries
-    result_dict = {'selection':{}, 'insertion':{},
-                   'shell': {}, 'merge':{}}
+    result_dict = {'selection_sort':{}, 'insertion_sort':{},
+                   'shell_sort': {}, 'merge_sort':{}}
 
     entries = [10]
     modes = ['random', 'crescente', 'decrescente']
@@ -147,35 +106,38 @@ if __name__ in "__main__":
     for mode in modes:
         for entry in entries:
             data = read_data('ArquivosOrdenacao/', entry_size=entry, mode=mode)
-
-            sort_by = Sort(data)
             
-            # ### selection sort algorithm
+            # ### selection_sort sort algorithm
             tic = time.time()
-            data_new = sort_by.selection()
+            data_new = selection_sort(data)
             tac = time.time()            
             ex_time = abs(tac - tic)
-            result_dict['selection'][mode].append(ex_time)
+            result_dict['selection_sort'][mode].append(ex_time)
 
-            # ### insertion sort algorithm
+            # ### insertion_sort sort algorithm
             tic = time.time()
-            data_new = sort_by.insertion()
+            data_new = insertion_sort(data)
             tac = time.time()            
             ex_time = abs(tac - tic)
-            result_dict['insertion'][mode].append(ex_time)
+            result_dict['insertion_sort'][mode].append(ex_time)
 
-            # ### shell sort algorithm
+            # ### shell_sort sort algorithm
             tic = time.time()
-            data_new = sort_by.shell()
+            data_new = shell_sort(data)
             tac = time.time()            
             ex_time = abs(tac - tic)
-            result_dict['shell'][mode].append(ex_time)
+            result_dict['shell_sort'][mode].append(ex_time)
 
             # ### merge sort algorithm
+            #aux = [0] * len(data)
             tic = time.time()
-            data_new = merge(data)
+            #merge_sort(data, aux, 0, len(data)-1)
             tac = time.time()            
             ex_time = abs(tac - tic)
-            result_dict['merge'][mode].append(ex_time)
+            result_dict['merge_sort'][mode].append(ex_time)
+            
 
     print(result_dict)
+    aux = [0] * len(data)
+    #merge_sort(data, aux, 0, len(data)-1)
+    
