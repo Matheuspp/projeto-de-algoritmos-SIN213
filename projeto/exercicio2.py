@@ -44,16 +44,18 @@ def cal_frequency(string):
 
     return frequency
 
-def save_dvz(tree_info, huffman_code=huffman_code, text_number=1):
-    with open(f'compressed_{text_number}.dvz') as fp:
-        fp.write()
+def save_dvz(tree_info, huffman_code=None, text_number=1):
+    with open(f'compressed_{text_number}.dvz', 'w') as fp:
+        fp.write(huffman_code)
 
 if __name__ in '__main__':
     
     for i in range(1, 6):
          string = read_data('./ArquivosCompressor', entry=i)
 
-    nodes = cal_frequency(string)
+    frequency = cal_frequency(string)
+    nodes = frequency
+    print(frequency)
 
     while len(nodes) > 1:
         (key1, c1) = nodes[-1]
@@ -67,7 +69,7 @@ if __name__ in '__main__':
     huffman_code = huffman_code_tree(nodes[0][0])
 
     # ### saving .dvz extension 
-
+    #save_dvz(None, huffman_code=huffman_code)
     print('----------------------')
-    for (char, frequency) in freq:
-        print(' %-4r |%12s' % (char, huffmanCode[char]))
+    for (char, freq) in frequency:
+        print(' %-4r |%12s' % (char, huffman_code[char]))

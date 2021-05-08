@@ -1,4 +1,5 @@
 import time
+import json
 
 def selection_sort(entry):
     for i in range(len(entry)):
@@ -40,7 +41,7 @@ def shell_sort(entry):
         gap = int(gap)
 
     return entry
-
+"""
 def merge(entry):
     for k in range(left, right + 1):
         aux[k] = entry[k]
@@ -74,6 +75,83 @@ def merge_sort(entry, aux, left, right):
     # Combina as duas metades ordenadas anteriormente.
     merge(A, aux, left, middle, right)
 
+"""
+
+# Iterative Merge sort (Bottom Up)
+
+# Iterative mergesort function to
+# sort arr[0...n-1]
+def mergeSort(a):
+	
+	current_size = 1
+	
+	# Outer loop for traversing Each
+	# sub array of current_size
+	while current_size < len(a) - 1:
+		
+		left = 0
+		# Inner loop for merge call
+		# in a sub array
+		# Each complete Iteration sorts
+		# the iterating sub array
+		while left < len(a)-1:
+			
+			# mid index = left index of
+			# sub array + current sub
+			# array size - 1
+			mid = min((left + current_size - 1),(len(a)-1))
+			
+			# (False result,True result)
+			# [Condition] Can use current_size
+			# if 2 * current_size < len(a)-1
+			# else len(a)-1
+			right = ((2 * current_size + left - 1,
+					len(a) - 1)[2 * current_size
+						+ left - 1 > len(a)-1])
+							
+			# Merge call for each sub array
+			merge(a, left, mid, right)
+			left = left + current_size*2
+			
+		# Increasing sub array size by
+		# multiple of 2
+		current_size = 2 * current_size
+
+
+# Merge Function
+def merge(a, l, m, r):
+	n1 = m - l + 1
+	n2 = r - m
+	L = [0] * n1
+	R = [0] * n2
+	for i in range(0, n1):
+		L[i] = a[l + i]
+	for i in range(0, n2):
+		R[i] = a[m + i + 1]
+
+	i, j, k = 0, 0, l
+	while i < n1 and j < n2:
+		if L[i] > R[j]:
+			a[k] = R[j]
+			j += 1
+		else:
+			a[k] = L[i]
+			i += 1
+		k += 1
+
+	while i < n1:
+		a[k] = L[i]
+		i += 1
+		k += 1
+
+	while j < n2:
+		a[k] = R[j]
+		j += 1
+		k += 1
+
+
+# Contributed by Madhur Chhangani [RCOEM]
+
 
 def read_data(path, entry_size=10, mode='random'):
 
@@ -95,7 +173,7 @@ if __name__ in "__main__":
     result_dict = {'selection_sort':{}, 'insertion_sort':{},
                    'shell_sort': {}, 'merge_sort':{}}
 
-    entries = [10]
+    entries = [10, 1000, 10000, 100000]
     modes = ['random', 'crescente', 'decrescente']
 
     for key, values in result_dict.items():
@@ -131,13 +209,15 @@ if __name__ in "__main__":
             # ### merge sort algorithm
             #aux = [0] * len(data)
             tic = time.time()
-            #merge_sort(data, aux, 0, len(data)-1)
+            mergeSort(data)
             tac = time.time()            
             ex_time = abs(tac - tic)
             result_dict['merge_sort'][mode].append(ex_time)
             
 
     print(result_dict)
-    aux = [0] * len(data)
+    with open('results.json', 'w') as fp:
+        json.dump(result_dict, fp, indent=2)
+    #aux = [0] * len(data)
     #merge_sort(data, aux, 0, len(data)-1)
     
