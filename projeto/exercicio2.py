@@ -77,7 +77,8 @@ def get_byte_array(padded_encoded_text):
 
 def write_dvz(header, huffman_code, string, text_number=1):
     with open(f'compressed_{text_number}.dvz', 'wb') as output:			
-
+        #output.write(bytes(''.join(header).encode()))
+        #output.write(bytes('\n'.encode()))
         encoded_text = get_encoded_text(huffman_code, string)
         padded_encoded_text = pad_encoded_text(encoded_text)
 
@@ -86,26 +87,33 @@ def write_dvz(header, huffman_code, string, text_number=1):
     
 
 def read_dvz(text_number=1):
+
+    #with open(f'compressed_{text_number}.dvz', 'rb') as file:
+    #    data = file.readlines()        
+    #    cout = len(data[0])
+    #    tree = data[0]
+
+        
     with open(f'compressed_{text_number}.dvz', 'rb') as file:
         bit_string = ""
 
         byte = file.read(1)
+        #for i in range(cout+1):
+        #    file.read(1)
 
         while(byte != ""):
             if len(byte) == 0:
                 break
-            print(byte)
             byte = ord(byte)
             bits = bin(byte)[2:].rjust(8, '0')
             bit_string += bits
             byte = file.read(1)
-            print(bit_string)
 
     return bit_string
                  
 
 def compress(path):
-    
+    maps = []
     for i in range(1, 6):
         string = read_data(path, entry=i)
 
@@ -123,23 +131,24 @@ def compress(path):
             nodes = sorted(nodes, key=lambda x: x[1], reverse=True)
 
         huffman_code = huffman_code_tree(nodes[0][0])
+        maps.append(huffman_code)
 
-        print('----------------------')
-        print('  compressing ...')
-        print('----------------------')
-        header = [str(len(string))]
-        second_line = []
+        print(f'compressing file {i} ...')
+        header = []
+
         for (char, freq) in frequency:
             #print(' %-4r |%12s' % (char, huffman_code[char]))
-            header.append(huffman_code[char])
-            header.append(char)
+            pass
 
+        for key, values in huffman_code.items():
+            header.append(values)
+            header.append(key)
 
         # ### saving .dvz extension 
         write_dvz(header, huffman_code, string, i)
         #print(huffman_code)
 
-    return huffman_code
+    return maps
 
 def remove_padding(padded_encoded_text):
 
@@ -164,24 +173,38 @@ def decode_text(encoded_text, mapping):
 
     return decoded_text
 
-def decompress(mapping):
+def decompress(maps):
 
-    for i in range(1, 6):
+    for idx in range(1, 6):
+        mapping = {}
+        for key, values in maps[idx-1].items():
+            mapping[values] = key
 
-        bit_string = read_dvz(i)
+        bit_string = read_dvz(idx)
+
+        #key = ''
+        #value = ''
+        #mapp = {}
+        #for i in tree:
+
+        #    if chr(i) == '1' or chr(i) == '0':
+        #        key += chr(i)
+        #    else:
+        #        value += chr(i)
+        #        mapp[key] = value
+
+        #        key = ''
+        #        value = ''
 
         encoded_text = remove_padding(bit_string)
 
         decompressed_text = decode_text(encoded_text, mapping)
         
-        print(decompressed_text)
+        with open(f'decompressed_{idx}.txt', 'w') as fp:
+            fp.write(decompressed_text)
 
 
 if __name__ in '__main__':
-    hm_code = compress('./ArquivosCompressor')
-    print(hm_code)
-    mapping = {}
-    for key, values in hm_code.items():
-        mapping[values] = key
+    maps = compress('./ArquivosCompressor')
     
-    decompress(mapping)
+    decompress(maps)
