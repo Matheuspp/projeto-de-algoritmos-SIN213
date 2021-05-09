@@ -25,6 +25,8 @@ def huffman_code_tree(node, left=True, binString=''):
     d.update(huffman_code_tree(r, False, binString + '1'))
     return d
 
+
+
 def read_data(path, entry=1):
 
     with open(f'{path}/Compressor_{entry}.txt', 'r') as fp:
@@ -45,11 +47,49 @@ def cal_frequency(string):
     return frequency
 
 def save_dvz(header, second_line=None, text_number=1):
-    with open(f'compressed_{text_number}.dvz', 'w') as fp:
+    with open(f'compressed_{text_number}.dvz', 'w+') as fp:
         fp.write(''.join(header))
         
-        #fp.write('\n'.encode())
-        #fp.write(''.join(second_line).encode())
+        fp.write('\n')
+        fp.write(''.join(second_line))
+
+def write_dvz(header, huffman_code, string, text_number=1):
+    byte = ''
+    byte_stack = ''
+    for char in string:
+        if len(byte) < 8:
+            if len(byte_stack) != 0:
+                byte += byte_stack
+                byte_stack = ''
+            else:
+                byte += huffman_code[char]
+
+        elif len(byte) > 8:
+            byte_stack += byte[8:]
+            byte = byte[0:8]
+        else:
+            # ### final string
+            if char == string[-1]:
+                if len(byte) < 8:
+                    byte += '0'* (8 - len(byte))
+
+                    with open(f'compressed_{text_number}.dvz', 'a+') as fp:
+                        fp.write(byte)
+
+                elif len(byte) > 8:
+                    byte_stack += byte[8:]
+                    byte = byte[0:8]
+
+                    byte_stack += '0'* (8 - len(byte_stack))
+
+                    with open(f'compressed_{text_number}.dvz', 'a+') as fp:
+                        fp.write(byte)
+                        fp.write(byte_stack)
+
+            with open(f'compressed_{text_number}.dvz', 'a+') as fp:
+                fp.write(byte)
+                byte = ''
+        
 
 def compress(path):
     
@@ -77,30 +117,18 @@ def compress(path):
         header = [str(len(string))]
         second_line = []
         for (char, freq) in frequency:
-            print(' %-4r |%12s' % (char, huffman_code[char]))
+            #print(' %-4r |%12s' % (char, huffman_code[char]))
             header.append(huffman_code[char])
             header.append(char)
             second_line.append(huffman_code[char])
-        print(header)
-        print(second_line)
 
         # ### saving .dvz extension 
-        save_dvz(header, second_line, text_number=i)
+        #save_dvz(header, second_line, text_number=i)
+        write_dvz(header, huffman_code, string, i)
+        print(huffman_code)
+        #print(nodes[0][0].children())
+        #print(nodes[0][0])
 
-
-def decompress(dbz_file):
-    d = {'y': '00', 'x': '1', 'z': '10'}
-    result = '1111111001010'
-    from typing import Generator
-    print(''.join(reverse_encoding(result, {b:a for a, b in d.items()})))
-
-def reverse_encoding(content:str, _lookup) -> Generator[str, None, None]:
-    while content:
-        _options = [i for i in _lookup if content.startswith(i) and (any(content[len(i):].startswith(b) for b in _lookup) or not content[len(i):])]
-        if not _options:
-            raise Exception("Decoding error")
-        yield _lookup[_options[0]]
-        content = content[len(_options[0]):]
 
 
 if __name__ in '__main__':
