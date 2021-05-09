@@ -46,50 +46,63 @@ def cal_frequency(string):
 
     return frequency
 
-def save_dvz(header, second_line=None, text_number=1):
-    with open(f'compressed_{text_number}.dvz', 'w+') as fp:
-        fp.write(''.join(header))
-        
-        fp.write('\n')
-        fp.write(''.join(second_line))
+
+def get_encoded_text(huffman_code, text):
+		encoded_text = ""
+		for character in text:
+			encoded_text += huffman_code[character]
+		return encoded_text
+
+
+def pad_encoded_text(encoded_text):
+    extra_padding = 8 - len(encoded_text) % 8
+    for i in range(extra_padding):
+        encoded_text += "0"
+
+    padded_info = "{0:08b}".format(extra_padding)
+    encoded_text = padded_info + encoded_text
+    return encoded_text
+
+
+def get_byte_array(padded_encoded_text):
+    if(len(padded_encoded_text) % 8 != 0):
+        print("Encoded text not padded properly")
+        exit(0)
+
+    b = bytearray()
+    for i in range(0, len(padded_encoded_text), 8):
+        byte = padded_encoded_text[i:i+8]
+        b.append(int(byte, 2))
+    return b
 
 def write_dvz(header, huffman_code, string, text_number=1):
-    byte = ''
-    byte_stack = ''
-    for char in string:
-        if len(byte) < 8:
-            if len(byte_stack) != 0:
-                byte += byte_stack
-                byte_stack = ''
-            else:
-                byte += huffman_code[char]
+    with open(f'compressed_{text_number}.dvz', 'wb') as output:			
 
-        elif len(byte) > 8:
-            byte_stack += byte[8:]
-            byte = byte[0:8]
-        else:
-            # ### final string
-            if char == string[-1]:
-                if len(byte) < 8:
-                    byte += '0'* (8 - len(byte))
+        encoded_text = get_encoded_text(huffman_code, string)
+        padded_encoded_text = pad_encoded_text(encoded_text)
 
-                    with open(f'compressed_{text_number}.dvz', 'a+') as fp:
-                        fp.write(byte)
+        b = get_byte_array(padded_encoded_text)
+        output.write(bytes(b))
+    
 
-                elif len(byte) > 8:
-                    byte_stack += byte[8:]
-                    byte = byte[0:8]
+def read_dvz(text_number=1):
+    with open(f'compressed_{text_number}.dvz', 'rb') as file:
+        bit_string = ""
 
-                    byte_stack += '0'* (8 - len(byte_stack))
+        byte = file.read(1)
 
-                    with open(f'compressed_{text_number}.dvz', 'a+') as fp:
-                        fp.write(byte)
-                        fp.write(byte_stack)
+        while(byte != ""):
+            if len(byte) == 0:
+                break
+            print(byte)
+            byte = ord(byte)
+            bits = bin(byte)[2:].rjust(8, '0')
+            bit_string += bits
+            byte = file.read(1)
+            print(bit_string)
 
-            with open(f'compressed_{text_number}.dvz', 'a+') as fp:
-                fp.write(byte)
-                byte = ''
-        
+    return bit_string
+                 
 
 def compress(path):
     
@@ -120,16 +133,55 @@ def compress(path):
             #print(' %-4r |%12s' % (char, huffman_code[char]))
             header.append(huffman_code[char])
             header.append(char)
-            second_line.append(huffman_code[char])
+
 
         # ### saving .dvz extension 
-        #save_dvz(header, second_line, text_number=i)
         write_dvz(header, huffman_code, string, i)
-        print(huffman_code)
-        #print(nodes[0][0].children())
-        #print(nodes[0][0])
+        #print(huffman_code)
 
+    return huffman_code
+
+def remove_padding(padded_encoded_text):
+
+    padded_info = padded_encoded_text[:8]
+    extra_padding = int(padded_info, 2)
+
+    padded_encoded_text = padded_encoded_text[8:] 
+    encoded_text = padded_encoded_text[:-1*extra_padding]
+
+    return encoded_text
+
+def decode_text(encoded_text, mapping):
+    current_code = ""
+    decoded_text = ""
+
+    for bit in encoded_text:
+        current_code += bit
+        if(current_code in mapping):
+            character = mapping[current_code]
+            decoded_text += character
+            current_code = ""
+
+    return decoded_text
+
+def decompress(mapping):
+
+    for i in range(1, 6):
+
+        bit_string = read_dvz(i)
+
+        encoded_text = remove_padding(bit_string)
+
+        decompressed_text = decode_text(encoded_text, mapping)
+        
+        print(decompressed_text)
 
 
 if __name__ in '__main__':
-    compress('./ArquivosCompressor')
+    hm_code = compress('./ArquivosCompressor')
+    print(hm_code)
+    mapping = {}
+    for key, values in hm_code.items():
+        mapping[values] = key
+    
+    decompress(mapping)
