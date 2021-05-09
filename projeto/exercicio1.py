@@ -1,5 +1,4 @@
 import time
-import json
 
 def selection_sort(entry):
     for i in range(len(entry)):
@@ -150,9 +149,6 @@ def merge(a, l, m, r):
 		k += 1
 
 
-# Contributed by Madhur Chhangani [RCOEM]
-
-
 def read_data(path, entry_size=10, mode='random'):
 
     with open(f'{path}/entrada{entry_size}.txt', 'r') as fp:
@@ -173,7 +169,7 @@ if __name__ in "__main__":
     result_dict = {'selection_sort':{}, 'insertion_sort':{},
                    'shell_sort': {}, 'merge_sort':{}}
 
-    entries = [10, 1000, 10000, 100000]
+    entries = [10]
     modes = ['random', 'crescente', 'decrescente']
 
     for key, values in result_dict.items():
@@ -216,8 +212,6 @@ if __name__ in "__main__":
             
 
     print(result_dict)
-    with open('results.json', 'w') as fp:
-        json.dump(result_dict, fp, indent=2)
-    #aux = [0] * len(data)
-    #merge_sort(data, aux, 0, len(data)-1)
+    with open('testes.txt', 'a+') as fp:
+        fp.write(str(result_dict))
     
